@@ -1,0 +1,57 @@
+version: '2.23.2'
+
+services:
+  webserver:
+    build: .
+    ports:
+      - 8090:80
+    networks:
+      - connwebserver
+    volumes:
+      - dev:/var/www/
+
+  postgresdb:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+    ports:
+      - 5432:5432
+    networks:
+      - connserverdb
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+      
+  servercache:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      - connserverdb
+    volumes:
+      - redisdata:/redis/data
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - 8090:80
+    networks:
+      - connserverdb
+    depends_on:
+      - postgresdb
+    volumes:
+      - pgadmindata:/var/lib/pgadmin
+
+volumes:
+  dev:
+  redisdata:
+  postgresdata:
+  pgadmindata:
+  
+networks:
+  connwebserver:
+    driver: bridge
+  connserverdb:
+    driver: bridge
