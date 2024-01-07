@@ -1,31 +1,24 @@
-# Sccseypre-dockerized
+# SISCONCED DOCKERIZED
 
-## Enviroment de desarrollo para el proyecto sccseypre
+## Este proyecto se creo para suplir la necesidad de superar el login de google con un certificado SSL.
 
-### Imagenes Usadas
----
-- **ubuntu:latest**
-Esta fue usada en el Dockerfile.
-
-- **postgres:latest**
-Esta es la imagen de postgres.
-
-- **redis:latest**
-Imagen de redis.
-
-- **dpage/pgadmin4:latest**
-Imagen del cliente administrador de base de datos.
 ---
 
-### Comandos para el deploy
-- **docker compose build**
-Para construir la imagen del Dockerfile
+## Dentro de este repo se encuentran dos carpetas una de ellas se llama **proyecto**, en esta carpeta se encuentran:
 
-- **docker compose up -d**
-Para montar los contenedores, el **-d** es para que ejecute el comando en segundo plano.
+    - Los archivos originales del repo.
+    - Dockerfile con todo el setup dentro de un solo contenedor.
+    - El docker compose que se encarga de crear los demas contenedores necesarios para el deployment.
+    - El archivo de configuracion de nginx.
+---
+## Nota
+    - Se separo la logica del proyecto dentro de la carpeta webservices.
 
-- **docker compose down**
-Para desmontar los contenedores
-
-- **Recomendaciones**
-Cambiar todos los espacios con la palabra changeme por el dato personalizado requerido.
+----------
+#### Dentro de la carpeta webservices, se encuentran 3 carpetas en cada una de ellas se encuentra un Dockerfile,
+#### este dockerfile hace alucion del servicio que presta.
+----------
+### Para ejecutar este proyecto, solo es necesario tener docker desktop o en su defecto docker engine.
+### Descarga el proyecto sisconced original de dementesweb, dentro de la carpeta `/webservices/app/` 
+### Para ejecutar este proyecto es necesario tener el proyecto sisconced procura hacer un git clone con el https del proyecto sisconced.
+----------

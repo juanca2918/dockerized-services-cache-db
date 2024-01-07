@@ -1,0 +1,88 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    volumes:
+      - dev:/var/www
+    environment:
+      - "DB_HOST=postgresdb"  # Corregido aquí
+      - "DB_PORT=5432"  # PostgreSQL usa el puerto 5432 por defecto
+      - "DB_DATABASE=mydatabase"
+      - "DB_USERNAME=myuser"
+      - "DB_PASSWORD=mysecretpassword"
+    networks:
+      - app-network
+      - net-serverdb
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    volumes:
+      - webserver:/var/www
+      - ./certs:/etc/nginx/certs
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - app-network
+
+  proxy:
+    build:
+      context: .
+      dockerfile: proxy/Dockerfile
+    ports:
+      - "9000:9000"
+    networks:
+      - app-network
+
+  postgresdb:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+    ports:
+      - 5432:5432
+    networks:
+      - net-serverdb
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+      
+  servercache:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      - net-serverdb
+    volumes:
+      - redisdata:/redis/data
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - 8090:80
+    networks:
+      - net-serverdb
+    depends_on:
+      - postgresdb
+    volumes:
+      - pgadmindata:/var/lib/pgadmin
+
+volumes:
+  dev:
+  webserver:
+  redisdata:
+  postgresdata:
+  pgadmindata:
+  certs:
+  
+networks:
+  app-network:
+    driver: bridge
+  net-serverdb:
+    driver: bridge
+  

@@ -11,6 +11,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Instalamos apache2, php8.0, software properties ppa:ondrej/php, curl, composer, git, nodejs, npm, yarn
 RUN apt-get update && apt-get install -y nginx software-properties-common && \
+    apt-get update && apt-get install -y sed && \
     apt-get install -y ssl-cert && \
     apt-get update && apt-get install -y nano && \
     add-apt-repository -y ppa:ondrej/php && apt-get update && \
@@ -42,11 +43,15 @@ RUN cd sisconced && cp .env.example .env
 # Generamos la key
 RUN cd sisconced && php artisan key:generate
 
-# Modificamos el archivo .env para que apunte a la base de datos de postgresql
-RUN cd sisconced && sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=pgsql/' && sed -i 's/DB_PORT=3306/DB_PORT=5432/' .env && sed -i 's/DB_DATABASE=laravel/DB_DATABASE=sisconced/' .env 
+RUN cd sisconced && \
+    sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=pgsql/' .env && \
+    sed -i 's/DB_PORT=3306/DB_PORT=5432/' .env && \
+    sed -i 's/DB_DATABASE=laravel/DB_DATABASE=sisconced/' .env
 
 # En el archivo .env modificamos el cache_driver a redis
-RUN cd sisconced && sed -i 's/CACHE_DRIVER=file/CACHE_DRIVER=redis/' .env && sed -i 's/SESSION_DRIVER=file/SESSION_DRIVER=redis/' .env && sed -i 's/QUEUE_DRIVER=sync/QUEUE_DRIVER=redis/' .env
+RUN sed -i 's/CACHE_DRIVER=file/CACHE_DRIVER=redis/' /var/www/sisconced/.env && \
+    sed -i 's/SESSION_DRIVER=file/SESSION_DRIVER=redis/' /var/www/sisconced/.env && \
+    sed -i 's/QUEUE_DRIVER=sync/QUEUE_DRIVER=redis/' /var/www/sisconced/.env
 
 WORKDIR /var/www/sisconced/
 
@@ -54,9 +59,9 @@ RUN composer require predis/predis
 
 WORKDIR /etc/nginx/
 
-RUN rm -v /etc/nginx/sisconced-dev.conf
+RUN rm -v /etc/nginx/nginx.conf
 
-COPY ./sisconced-dev.conf /etc/apache2/sites-available/
+COPY ./nginx.conf /etc/nginx/nginx.conf
 
 WORKDIR /var/www/
 
@@ -78,8 +83,10 @@ RUN ln -s /etc/nginx/sites-available/sisconced-dev.conf /etc/nginx/sites-enabled
 RUN ln -s /etc/nginx/modules-available/rewrite.load /etc/nginx/modules-enabled/
 RUN ln -s /etc/nginx/modules-available/headers.load /etc/nginx/modules-enabled/
 
+RUN service nginx start && nginx -t && nginx -s reload
+
 # Exponemos los puertos
-EXPOSE 80 22
+EXPOSE 80 22 443
 
 # Iniciamos Nginx
 CMD ["nginx", "-g", "daemon off;"]
