@@ -8,12 +8,6 @@ services:
     volumes:
       - app-dev:/var/www/sisconced
       - php-fpm-sock:/var/run/php
-    environment:
-      - "DB_HOST=pgsql"  
-      - "DB_PORT=5432"  
-      - "DB_DATABASE=sisconced"
-      - "DB_USERNAME=desarrollador"
-      - "DB_PASSWORD=mysecretpassword"
     networks:
       - app-network
     ports:
@@ -58,7 +52,7 @@ services:
     depends_on:
       - postgresdb
     volumes:
-      - pgadmindata:/var/lib/pgadmin
+      - postgresdata:/var/lib/postgresql/data
       
   servercache:
     image: redis:latest
@@ -75,8 +69,6 @@ volumes:
   php-fpm-sock:
   redisdata:
   postgresdata:
-  certs:
-  pgadmindata:
   
 networks:
   app-network:
