@@ -4,77 +4,61 @@ services:
     build:
       context: .
       dockerfile: app/Dockerfile
+    container_name: app-sisconced
     volumes:
-      - dev:/var/www
+      - app-dev:/var/www/sisconced
+      - php-fpm-sock:/var/run/php
     environment:
-      - "DB_HOST=postgresdb"  # Corregido aquí
-      - "DB_PORT=5432"  # PostgreSQL usa el puerto 5432 por defecto
-      - "DB_DATABASE=mydatabase"
-      - "DB_USERNAME=myuser"
+      - "DB_HOST=pgsql"  
+      - "DB_PORT=5432"  
+      - "DB_DATABASE=sisconced"
+      - "DB_USERNAME=desarrollador"
       - "DB_PASSWORD=mysecretpassword"
     networks:
       - app-network
-      - net-serverdb
+    ports:
+      - "80:80"
 
   nginx:
     build:
       context: .
       dockerfile: nginx/Dockerfile
+    container_name: nginx-sisconced
     volumes:
-      - webserver:/var/www
+      - app-dev:/var/www/sisconced
+      - php-fpm-sock:/var/run/php
       - ./certs:/etc/nginx/certs
     ports:
-      - "80:80"
+      - "8081:80"
       - "443:443"
-    networks:
-      - app-network
-
-  proxy:
-    build:
-      context: .
-      dockerfile: proxy/Dockerfile
-    ports:
-      - "9000:9000"
     networks:
       - app-network
 
   postgresdb:
     image: postgres:latest
+    container_name: db-sisconced
     environment:
       POSTGRES_PASSWORD: mysecretpassword
     ports:
       - 5432:5432
     networks:
-      - net-serverdb
+      - app-network
     volumes:
       - postgresdata:/var/lib/postgresql/data
+    command: ["/bin/bash", "./dbsetup.sh"]
       
   servercache:
     image: redis:latest
+    container_name: redis-sisconced
     ports:
       - 6379:6379
     networks:
-      - net-serverdb
+      - app-network
     volumes:
       - redisdata:/redis/data
-  
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - 8090:80
-    networks:
-      - net-serverdb
-    depends_on:
-      - postgresdb
-    volumes:
-      - pgadmindata:/var/lib/pgadmin
 
 volumes:
-  dev:
-  webserver:
+  app-dev:
   redisdata:
   postgresdata:
   pgadmindata:
@@ -82,7 +66,5 @@ volumes:
   
 networks:
   app-network:
-    driver: bridge
-  net-serverdb:
     driver: bridge
   

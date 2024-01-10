@@ -1,27 +1,51 @@
 FROM php:8.2-fpm
 
-# Instala las dependencias
 RUN apt-get update && apt-get install -y \
-  libpng-dev \
-  zlib1g-dev \
-  libxml2-dev \
-  libzip-dev \
-  libonig-dev \
-  zip \
   curl \
-  unzip
+  libzip-dev \
+  oniguruma-dev \
+  libpng-dev \
+  libxml2-dev \
+  unzip \
+  libssl-dev \
+  libexif-dev \
+  libxml2-dev \
+  libfreetype6-dev \
+  libjpeg62-turbo-dev \
+  libicu-dev \
+  libpq-dev \
+  zlib1g-dev \
+  g++
 
-# Instala las extensiones de PHP
-RUN docker-php-ext-install mbstring exif pcntl bcmath gd zip mysqli pdo_mysql curl xml tokenizer json intl opcache pgsql pdo_pgsql bcmath soap xmlrpc dom libapache2 redis @composer-2.0.2
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
-# Establece el directorio de trabajo
-WORKDIR /var/www
+RUN docker-php-ext-install -j$(nproc) gd \
+  zip \
+  mbstring \
+  pcntl \
+  bcmath \
+  mysqli \
+  pdo_mysql \
+  curl \
+  xml \
+  json \
+  intl \
+  opcache \
+  pdo_pgsql \
+  bcmath \
+  dom
 
-# Copia la aplicación al contenedor
-COPY . /var/www
+RUN pecl install redis \
+  && docker-php-ext-enable redis
 
-# Otorga permisos al directorio de almacenamiento
-RUN chown -R www-data:www-data /var/www/sisconced/storage
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Expone el puerto 9000
-EXPOSE 9000
+COPY ./app/sisconced /var/www/sisconced
+
+COPY ./app/appsetup.sh /var/www/sisconced/app-setup.sh
+
+WORKDIR /var/www/
+
+EXPOSE 80
+
+CMD ["php-fpm"]
