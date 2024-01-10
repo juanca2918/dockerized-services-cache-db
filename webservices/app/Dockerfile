@@ -3,7 +3,7 @@ FROM php:8.2-fpm
 RUN apt-get update && apt-get install -y \
   curl \
   libzip-dev \
-  oniguruma-dev \
+  libonig-dev \
   libpng-dev \
   libxml2-dev \
   unzip \
