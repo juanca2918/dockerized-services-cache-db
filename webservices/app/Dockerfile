@@ -15,25 +15,24 @@ RUN apt-get update && apt-get install -y \
   libicu-dev \
   libpq-dev \
   zlib1g-dev \
-  g++
+  g++ \
+  libcurl4-openssl-dev
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
-RUN docker-php-ext-install -j$(nproc) gd \
-  zip \
-  mbstring \
-  pcntl \
-  bcmath \
-  mysqli \
-  pdo_mysql \
-  curl \
-  xml \
-  json \
-  intl \
-  opcache \
-  pdo_pgsql \
-  bcmath \
-  dom
+RUN docker-php-ext-install gd
+RUN docker-php-ext-install zip
+RUN docker-php-ext-install mbstring
+RUN docker-php-ext-install pcntl
+RUN docker-php-ext-install bcmath
+RUN docker-php-ext-install mysqli
+RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install curl
+RUN docker-php-ext-install xml
+RUN docker-php-ext-install intl
+RUN docker-php-ext-install opcache
+RUN docker-php-ext-install pdo_pgsql
+RUN docker-php-ext-install dom
 
 RUN pecl install redis \
   && docker-php-ext-enable redis

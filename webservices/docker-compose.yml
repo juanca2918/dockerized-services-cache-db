@@ -45,7 +45,20 @@ services:
       - app-network
     volumes:
       - postgresdata:/var/lib/postgresql/data
-    command: ["/bin/bash", "./dbsetup.sh"]
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - 8090:80
+    networks:
+      - app-network
+    depends_on:
+      - postgresdb
+    volumes:
+      - pgadmindata:/var/lib/pgadmin
       
   servercache:
     image: redis:latest
@@ -62,8 +75,8 @@ volumes:
   php-fpm-sock:
   redisdata:
   postgresdata:
-  pgadmindata:
   certs:
+  pgadmindata:
   
 networks:
   app-network:
