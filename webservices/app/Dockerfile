@@ -2,6 +2,7 @@ FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
   curl \
+  git \
   libzip-dev \
   libonig-dev \
   libpng-dev \
@@ -39,9 +40,11 @@ RUN pecl install redis \
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
+
 COPY ./app/sisconced /var/www/sisconced
 
-COPY ./app/appsetup.sh /var/www/sisconced/app-setup.sh
+COPY ./app/appsetup.sh /var/www/sisconced/appsetup.sh
 
 WORKDIR /var/www/
 

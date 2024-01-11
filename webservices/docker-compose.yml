@@ -7,11 +7,12 @@ services:
     container_name: app-sisconced
     volumes:
       - app-dev:/var/www/sisconced
-      - php-fpm-sock:/var/run/php
+      - php-fpm-sock:/var/run/php/php8.2-fpm.sock
+      - ./certs:/etc/nginx/certs
     networks:
       - app-network
     ports:
-      - "80:80"
+      - "8080:80"
 
   nginx:
     build:
@@ -20,11 +21,21 @@ services:
     container_name: nginx-sisconced
     volumes:
       - app-dev:/var/www/sisconced
-      - php-fpm-sock:/var/run/php
+      - php-fpm-sock:/var/run/php/php8.2-fpm.sock
       - ./certs:/etc/nginx/certs
     ports:
-      - "8081:80"
+      - "8082:80"
       - "443:443"
+    networks:
+      - app-network
+    
+  proxy:
+    build:
+      context: .
+      dockerfile: proxy/Dockerfile
+    container_name: proxy-sisconced
+    ports:
+      - "80:80"
     networks:
       - app-network
 
