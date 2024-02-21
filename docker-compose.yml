@@ -1,15 +1,6 @@
 version: '2.23.2'
 
 services:
-  webserver:
-    build: .
-    ports:
-      - 8090:80
-    networks:
-      - connwebserver
-    volumes:
-      - dev:/var/www/
-
   postgresdb:
     image: postgres:latest
     environment:
@@ -45,13 +36,10 @@ services:
       - pgadmindata:/var/lib/pgadmin
 
 volumes:
-  dev:
   redisdata:
   postgresdata:
   pgadmindata:
   
 networks:
-  connwebserver:
-    driver: bridge
   connserverdb:
     driver: bridge
